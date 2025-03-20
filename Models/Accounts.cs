@@ -9,6 +9,7 @@ public class Accounts
     public bool Sex { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     
+    
     public ExpUsers ExpUser { get; set; }
 
 }

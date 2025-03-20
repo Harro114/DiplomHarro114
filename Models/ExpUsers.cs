@@ -6,6 +6,7 @@ public class ExpUsers
     public int AccountId { get; set; }
     public int ExpValue  { get; set; }
     
+    
     public Accounts Account { get; set; }
     
     public ExpUsers ExpUser { get; set; }

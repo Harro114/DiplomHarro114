@@ -9,6 +9,7 @@ public class ExpChanges
     public int CurrentBalance { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     
+    
     // Ссылка на объект Account
     public Accounts Account { get; set; }
 

@@ -3,32 +3,50 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Diplom.Data;
 
-public class ApplicationDbContext : DbContext // Имя класса теперь согласовано
+public class ApplicationDbContext : DbContext
 {
-    public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options);
-    
-    
+    // Конструктор
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    {
+    }
+
+    // DbSet для каждой из моделей
     public DbSet<Accounts> Accounts { get; set; }
     public DbSet<ExpChanges> ExpChanges { get; set; }
     public DbSet<ExpUsers> ExpUsers { get; set; }
-    
+
+    // Метод настройки моделей
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Accounts>().ToTable("Accounts");
-        modelBuilder.Entity<ExpChanges>().ToTable("ExpChanges");
-        modelBuilder.Entity<ExpUsers>().ToTable("ExpUsers");
-        modelBuilder.Entity<ExpUsers>()
-            .HasOne(e => e.Account)
-            .HasForeignKey<Accounts>(a => a.AccountId);
+        // Настройка связи Account - ExpUsers (один-к-одному)
+        modelBuilder.Entity<Accounts>(z =>
+            {
+                z.HasKey(e => e.AccountId);
+            }
+        ); // Указание внешнего ключа
 
-        modelBuilder.Entity<ExpChanges>()
-            .HasOne(e => e.Account)
-            .WithOne()
-            .HasForeignKey<Accounts>(a => a.AccountId);
 
-        modelBuilder.Entity<ExpChanges>()
-            .HasOne(e => e.ExpUser)
-            .WithOne()
-            .HasForeignKey<ExpUsers>(e => e.ExpUser);
+        // Настройка связи ExpChanges - Accounts (многие-к-одному)
+        modelBuilder.Entity<ExpUsers>(z =>
+        {
+            z.HasKey(e => e.Id);
+            z.HasOne(e => e.Account)
+                .WithMany()
+                .HasForeignKey(e => e.AccountId);
+        });
+
+
+        // Настройка связи ExpChanges - ExpUsers (многие-к-одному)
+        modelBuilder.Entity<ExpChanges>(z =>
+        {
+            z.HasKey(e => e.Id);
+            z.HasOne(e => e.ExpUser)
+                .WithMany()
+                .HasForeignKey(e => e.ExpUserId);
+            z.HasOne(e => e.Account)
+                .WithMany()
+                .HasForeignKey(e => e.AccountId);
+        });
+        // Отношение без каскада
     }
 }
