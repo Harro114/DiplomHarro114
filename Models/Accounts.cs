@@ -15,5 +15,5 @@ public class Accounts
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     
     
-    public virtual ExpUsers ExpUser { get; set; } // без ExpUserId!
+    public virtual ExpUsersWallets ExpUserWallets { get; set; } // без ExpUserId!
 }

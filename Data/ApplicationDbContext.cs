@@ -13,27 +13,24 @@ public class ApplicationDbContext : DbContext
     // DbSet для каждой из моделей
     public DbSet<Accounts> Accounts { get; set; }
     public DbSet<ExpChanges> ExpChanges { get; set; }
-    public DbSet<ExpUsers> ExpUsers { get; set; }
+    public DbSet<ExpUsersWallets> ExpUsersWallets { get; set; }
+    public DbSet<Config> Config { get; set; }
 
     // Метод настройки моделей
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // Настройка связи Account - ExpUsers (один-к-одному)
-        modelBuilder.Entity<Accounts>(z =>
-            {
-                z.HasKey(e => e.Id);
-                z.Ignore(e => e.ExpUser);
-            }
-        ); 
+        modelBuilder.Entity<Accounts>(z => { z.HasKey(e => e.Id); }
+        );
 
 
         // Настройка связи ExpChanges - Accounts (многие-к-одному)
-        modelBuilder.Entity<ExpUsers>(z =>
+        modelBuilder.Entity<ExpUsersWallets>(z =>
         {
             z.HasKey(e => e.Id);
             z.HasOne(eu => eu.Accounts)
-                .WithOne(a => a.ExpUser)
-                .HasForeignKey<ExpUsers>(eu => eu.AccountId);
+                .WithOne(a => a.ExpUserWallets)
+                .HasForeignKey<ExpUsersWallets>(eu => eu.AccountId);
         });
 
 
@@ -44,9 +41,11 @@ public class ApplicationDbContext : DbContext
             z.HasOne<Accounts>(ec => ec.Accounts)
                 .WithMany()
                 .HasForeignKey(ec => ec.AccountId);
-            z.HasOne<ExpUsers>(ec => ec.ExpUsers)
+            z.HasOne<ExpUsersWallets>(ec => ec.ExpUsersWallets)
                 .WithMany()
                 .HasForeignKey(ec => ec.ExpUserId);
         });
+
+        modelBuilder.Entity<Config>().HasNoKey();
     }
 }
