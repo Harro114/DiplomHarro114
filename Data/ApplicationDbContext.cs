@@ -21,18 +21,19 @@ public class ApplicationDbContext : DbContext
         // Настройка связи Account - ExpUsers (один-к-одному)
         modelBuilder.Entity<Accounts>(z =>
             {
-                z.HasKey(e => e.AccountId);
+                z.HasKey(e => e.Id);
+                z.Ignore(e => e.ExpUser);
             }
-        ); // Указание внешнего ключа
+        ); 
 
 
         // Настройка связи ExpChanges - Accounts (многие-к-одному)
         modelBuilder.Entity<ExpUsers>(z =>
         {
             z.HasKey(e => e.Id);
-            z.HasOne(e => e.Account)
-                .WithMany()
-                .HasForeignKey(e => e.AccountId);
+            z.HasOne(eu => eu.Accounts)
+                .WithOne(a => a.ExpUser)
+                .HasForeignKey<ExpUsers>(eu => eu.AccountId);
         });
 
 
@@ -40,13 +41,12 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<ExpChanges>(z =>
         {
             z.HasKey(e => e.Id);
-            z.HasOne(e => e.ExpUser)
+            z.HasOne<Accounts>(ec => ec.Accounts)
                 .WithMany()
-                .HasForeignKey(e => e.ExpUserId);
-            z.HasOne(e => e.Account)
+                .HasForeignKey(ec => ec.AccountId);
+            z.HasOne<ExpUsers>(ec => ec.ExpUsers)
                 .WithMany()
-                .HasForeignKey(e => e.AccountId);
+                .HasForeignKey(ec => ec.ExpUserId);
         });
-        // Отношение без каскада
     }
 }

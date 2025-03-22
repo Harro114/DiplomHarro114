@@ -1,8 +1,13 @@
-﻿namespace Diplom.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Diplom.Models;
 
 public class Accounts
 {
-    public int AccountId { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; }
     public string Username { get; set; }
     public string UserLastName { get; set; }
     public string UserFirstName { get; set; }
@@ -10,6 +15,5 @@ public class Accounts
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     
     
-    public ExpUsers ExpUser { get; set; }
-
+    public virtual ExpUsers ExpUser { get; set; } // без ExpUserId!
 }
