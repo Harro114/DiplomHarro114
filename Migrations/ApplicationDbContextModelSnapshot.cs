@@ -53,6 +53,19 @@ namespace Diplom.Migrations
                     b.ToTable("Accounts");
                 });
 
+            modelBuilder.Entity("Diplom.Models.Config", b =>
+                {
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.ToTable("Config");
+                });
+
             modelBuilder.Entity("Diplom.Models.ExpChanges", b =>
                 {
                     b.Property<int>("Id")
@@ -85,7 +98,7 @@ namespace Diplom.Migrations
                     b.ToTable("ExpChanges");
                 });
 
-            modelBuilder.Entity("Diplom.Models.ExpUsers", b =>
+            modelBuilder.Entity("Diplom.Models.ExpUsersWallets", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -104,7 +117,7 @@ namespace Diplom.Migrations
                     b.HasIndex("AccountId")
                         .IsUnique();
 
-                    b.ToTable("ExpUsers");
+                    b.ToTable("ExpUsersWallets");
                 });
 
             modelBuilder.Entity("Diplom.Models.ExpChanges", b =>
@@ -115,7 +128,7 @@ namespace Diplom.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Diplom.Models.ExpUsers", "ExpUsers")
+                    b.HasOne("Diplom.Models.ExpUsersWallets", "ExpUsersWallets")
                         .WithMany()
                         .HasForeignKey("ExpUserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -123,14 +136,14 @@ namespace Diplom.Migrations
 
                     b.Navigation("Accounts");
 
-                    b.Navigation("ExpUsers");
+                    b.Navigation("ExpUsersWallets");
                 });
 
-            modelBuilder.Entity("Diplom.Models.ExpUsers", b =>
+            modelBuilder.Entity("Diplom.Models.ExpUsersWallets", b =>
                 {
                     b.HasOne("Diplom.Models.Accounts", "Accounts")
-                        .WithOne("ExpUser")
-                        .HasForeignKey("Diplom.Models.ExpUsers", "AccountId")
+                        .WithOne("ExpUserWallets")
+                        .HasForeignKey("Diplom.Models.ExpUsersWallets", "AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -139,7 +152,7 @@ namespace Diplom.Migrations
 
             modelBuilder.Entity("Diplom.Models.Accounts", b =>
                 {
-                    b.Navigation("ExpUser")
+                    b.Navigation("ExpUserWallets")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618
