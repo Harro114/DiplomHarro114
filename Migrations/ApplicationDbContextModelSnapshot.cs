@@ -59,8 +59,16 @@ namespace Diplom.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Value")
-                        .IsRequired()
+                    b.Property<DateTime?>("ValueDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<float?>("ValueFloat")
+                        .HasColumnType("real");
+
+                    b.Property<int?>("ValueInt")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ValueString")
                         .HasColumnType("text");
 
                     b.ToTable("Config");

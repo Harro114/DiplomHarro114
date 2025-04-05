@@ -56,7 +56,7 @@ public class ExpController : ControllerBase
             var expUsersWallets = new ExpUsersWallets
             {
                 AccountId = expUsersWalletsDto.AccountId,
-                ExpValue = expUsersWalletsDto.ExpValue ?? 0
+                ExpValue = 0
             };
             await _context.ExpUsersWallets.AddAsync(expUsersWallets);
             await _context.SaveChangesAsync();

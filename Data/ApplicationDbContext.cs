@@ -46,6 +46,9 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(ec => ec.ExpUserId);
         });
 
-        modelBuilder.Entity<Config>().HasNoKey();
+        modelBuilder.Entity<Config>(z =>
+        {
+            z.HasNoKey();
+        });
     }
 }
