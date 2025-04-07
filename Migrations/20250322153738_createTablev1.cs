@@ -1,4 +1,5 @@
 ﻿using System;
+using Diplom.Models;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -93,6 +94,19 @@ namespace Diplom.Migrations
                 table: "ExpUsers",
                 column: "AccountId",
                 unique: true);
+
+            migrationBuilder.InsertData(
+                table: "Config",
+                columns: new[] { "Name", "ValueFloat"},
+                values: new object[] {"rublesToExp", 1f}
+                
+            );
+            
+            migrationBuilder.InsertData(
+                table: "Config",
+                columns: new[] { "Name" },
+                values: new object[] { "lastDateOrder" }
+            );
         }
 
         /// <inheritdoc />
