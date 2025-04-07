@@ -15,6 +15,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<ExpChanges> ExpChanges { get; set; }
     public DbSet<ExpUsersWallets> ExpUsersWallets { get; set; }
     public DbSet<Config> Config { get; set; }
+    public DbSet<Orders> Orders { get; set; }
+    public DbSet<OrdersHistory> OrdersHistory { get; set; }
 
     // Метод настройки моделей
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -49,6 +51,23 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<Config>(z =>
         {
             z.HasNoKey();
+        });
+
+        modelBuilder.Entity<Orders>(z =>
+        {
+            z.HasKey(e => e.Id);
+            z.HasOne<Accounts>(ec => ec.Accounts)
+                .WithMany()
+                .HasForeignKey(ec => ec.AccountId);
+        });
+        
+        modelBuilder.Entity<OrdersHistory>(z =>
+        {
+            z.HasKey(e => e.Id);
+            z.HasOne<Accounts>(ec => ec.Accounts)
+                .WithMany()
+                .HasForeignKey(ec => ec.AccountId);
+            
         });
     }
 }

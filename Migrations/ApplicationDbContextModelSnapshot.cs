@@ -128,6 +128,54 @@ namespace Diplom.Migrations
                     b.ToTable("ExpUsersWallets");
                 });
 
+            modelBuilder.Entity("Diplom.Models.Orders", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("integer");
+
+                    b.Property<float>("Amounts")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("DateLastOrder")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("Diplom.Models.OrdersHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("integer");
+
+                    b.Property<float>("Amounts")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime>("DateLastOrder")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("OrdersHistory");
+                });
+
             modelBuilder.Entity("Diplom.Models.ExpChanges", b =>
                 {
                     b.HasOne("Diplom.Models.Accounts", "Accounts")
@@ -152,6 +200,28 @@ namespace Diplom.Migrations
                     b.HasOne("Diplom.Models.Accounts", "Accounts")
                         .WithOne("ExpUserWallets")
                         .HasForeignKey("Diplom.Models.ExpUsersWallets", "AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Accounts");
+                });
+
+            modelBuilder.Entity("Diplom.Models.Orders", b =>
+                {
+                    b.HasOne("Diplom.Models.Accounts", "Accounts")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Accounts");
+                });
+
+            modelBuilder.Entity("Diplom.Models.OrdersHistory", b =>
+                {
+                    b.HasOne("Diplom.Models.Accounts", "Accounts")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

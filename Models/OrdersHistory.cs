@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Diplom.Models;
 
-public class Orders
+public class OrdersHistory
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
