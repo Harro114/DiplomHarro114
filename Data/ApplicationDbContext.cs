@@ -17,6 +17,15 @@ public class ApplicationDbContext : DbContext
     public DbSet<Config> Config { get; set; }
     public DbSet<Orders> Orders { get; set; }
     public DbSet<OrdersHistory> OrdersHistory { get; set; }
+    public DbSet<ProductsStore> ProductsStore { get; set; }
+    public DbSet<CategoriesStore> CategoriesStore { get; set; }
+    public DbSet<Discounts> Discounts { get; set; }
+    public DbSet<UserDiscounts> UserDiscounts { get; set; }
+    public DbSet<UserDiscountsHistory> UserDiscountsHistory { get; set; }
+    public DbSet<UserDiscountsActivated> UserDiscountsActivated { get; set; }
+    public DbSet<UserDiscountsActivatedHistory> UserDiscountsActivatedHistory { get; set; }
+    
+    
 
     // Метод настройки моделей
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -68,6 +77,71 @@ public class ApplicationDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(ec => ec.AccountId);
             
+        });
+
+        modelBuilder.Entity<ProductsStore>(z =>
+        {
+            z.HasKey(e => e.Id);
+        });
+
+        modelBuilder.Entity<CategoriesStore>(z =>
+        {
+            z.HasKey(e => e.Id);
+        });
+
+        modelBuilder.Entity<Discounts>(z =>
+        {
+            z.HasKey(e => e.Id);
+            z.HasMany<ProductsStore>(ec => ec.ProductsId)
+                .WithMany()
+                .UsingEntity(j => j.ToTable("DiscountsProductsStore"));
+            z.HasMany<CategoriesStore>(ec => ec.CategoriesId)
+                .WithMany()
+                .UsingEntity(j => j.ToTable("CategoriesStoreDiscounts"));
+        });
+
+        modelBuilder.Entity<UserDiscounts>(z =>
+        {
+            z.HasKey(e => e.Id);
+            z.HasOne<Accounts>(ec => ec.Accounts)
+                .WithMany()
+                .HasForeignKey(ec => ec.AccountId);
+            z.HasOne<Discounts>(ec => ec.Discounts)
+                .WithMany()
+                .HasForeignKey(ec => ec.DiscountId);
+        });
+        
+        modelBuilder.Entity<UserDiscountsActivated>(z =>
+        {
+            z.HasKey(e => e.Id);
+            z.HasOne<Accounts>(ec => ec.Accounts)
+                .WithMany()
+                .HasForeignKey(ec => ec.AccountId);
+            z.HasOne<Discounts>(ec => ec.Discounts)
+                .WithMany()
+                .HasForeignKey(ec => ec.DiscountId);
+        });
+        
+        modelBuilder.Entity<UserDiscountsHistory>(z =>
+        {
+            z.HasKey(e => e.Id);
+            z.HasOne<Accounts>(ec => ec.Accounts)
+                .WithMany()
+                .HasForeignKey(ec => ec.AccountId);
+            z.HasOne<Discounts>(ec => ec.Discounts)
+                .WithMany()
+                .HasForeignKey(ec => ec.DiscountId);
+        });
+        
+        modelBuilder.Entity<UserDiscountsActivatedHistory>(z =>
+        {
+            z.HasKey(e => e.Id);
+            z.HasOne<Accounts>(ec => ec.Accounts)
+                .WithMany()
+                .HasForeignKey(ec => ec.AccountId);
+            z.HasOne<Discounts>(ec => ec.Discounts)
+                .WithMany()
+                .HasForeignKey(ec => ec.DiscountId);
         });
     }
 }

@@ -22,6 +22,21 @@ namespace Diplom.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("CategoriesStoreDiscounts", b =>
+                {
+                    b.Property<int>("CategoriesIdId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DiscountsId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("CategoriesIdId", "DiscountsId");
+
+                    b.HasIndex("DiscountsId");
+
+                    b.ToTable("CategoriesStoreDiscounts", (string)null);
+                });
+
             modelBuilder.Entity("Diplom.Models.Accounts", b =>
                 {
                     b.Property<int>("Id")
@@ -53,6 +68,26 @@ namespace Diplom.Migrations
                     b.ToTable("Accounts");
                 });
 
+            modelBuilder.Entity("Diplom.Models.CategoriesStore", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("isActive")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CategoriesStore");
+                });
+
             modelBuilder.Entity("Diplom.Models.Config", b =>
                 {
                     b.Property<string>("Name")
@@ -74,6 +109,45 @@ namespace Diplom.Migrations
                     b.ToTable("Config");
                 });
 
+            modelBuilder.Entity("Diplom.Models.Discounts", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CategoriesStoreId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("ProductsStoreId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("isActive")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoriesStoreId");
+
+                    b.HasIndex("ProductsStoreId");
+
+                    b.ToTable("Discounts");
+                });
+
             modelBuilder.Entity("Diplom.Models.ExpChanges", b =>
                 {
                     b.Property<int>("Id")
@@ -90,6 +164,10 @@ namespace Diplom.Migrations
 
                     b.Property<int>("CurrentBalance")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Discription")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("ExpUserId")
                         .HasColumnType("integer");
@@ -176,6 +254,185 @@ namespace Diplom.Migrations
                     b.ToTable("OrdersHistory");
                 });
 
+            modelBuilder.Entity("Diplom.Models.ProductsStore", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("isActive")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProductsStore");
+                });
+
+            modelBuilder.Entity("Diplom.Models.UserDiscounts", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("DateAccruals")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DiscountId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("DiscountId");
+
+                    b.ToTable("UserDiscounts");
+                });
+
+            modelBuilder.Entity("Diplom.Models.UserDiscountsActivated", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("DateActivateDiscount")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DiscountId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("DiscountId");
+
+                    b.ToTable("UserDiscountsActivated");
+                });
+
+            modelBuilder.Entity("Diplom.Models.UserDiscountsActivatedHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("DateActivateDiscount")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DateDelete")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DiscountId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("DiscountId");
+
+                    b.ToTable("UserDiscountsActivatedHistory");
+                });
+
+            modelBuilder.Entity("Diplom.Models.UserDiscountsHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("DateAccruals")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("DateDelete")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("DiscountId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.HasIndex("DiscountId");
+
+                    b.ToTable("UserDiscountsHistory");
+                });
+
+            modelBuilder.Entity("DiscountsProductsStore", b =>
+                {
+                    b.Property<int>("DiscountsId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProductsIdId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("DiscountsId", "ProductsIdId");
+
+                    b.HasIndex("ProductsIdId");
+
+                    b.ToTable("DiscountsProductsStore", (string)null);
+                });
+
+            modelBuilder.Entity("CategoriesStoreDiscounts", b =>
+                {
+                    b.HasOne("Diplom.Models.CategoriesStore", null)
+                        .WithMany()
+                        .HasForeignKey("CategoriesIdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Diplom.Models.Discounts", null)
+                        .WithMany()
+                        .HasForeignKey("DiscountsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Diplom.Models.Discounts", b =>
+                {
+                    b.HasOne("Diplom.Models.CategoriesStore", "CategoriesStore")
+                        .WithMany()
+                        .HasForeignKey("CategoriesStoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Diplom.Models.ProductsStore", "ProductsStore")
+                        .WithMany()
+                        .HasForeignKey("ProductsStoreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CategoriesStore");
+
+                    b.Navigation("ProductsStore");
+                });
+
             modelBuilder.Entity("Diplom.Models.ExpChanges", b =>
                 {
                     b.HasOne("Diplom.Models.Accounts", "Accounts")
@@ -226,6 +483,97 @@ namespace Diplom.Migrations
                         .IsRequired();
 
                     b.Navigation("Accounts");
+                });
+
+            modelBuilder.Entity("Diplom.Models.UserDiscounts", b =>
+                {
+                    b.HasOne("Diplom.Models.Accounts", "Accounts")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Diplom.Models.Discounts", "Discounts")
+                        .WithMany()
+                        .HasForeignKey("DiscountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Accounts");
+
+                    b.Navigation("Discounts");
+                });
+
+            modelBuilder.Entity("Diplom.Models.UserDiscountsActivated", b =>
+                {
+                    b.HasOne("Diplom.Models.Accounts", "Accounts")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Diplom.Models.Discounts", "Discounts")
+                        .WithMany()
+                        .HasForeignKey("DiscountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Accounts");
+
+                    b.Navigation("Discounts");
+                });
+
+            modelBuilder.Entity("Diplom.Models.UserDiscountsActivatedHistory", b =>
+                {
+                    b.HasOne("Diplom.Models.Accounts", "Accounts")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Diplom.Models.Discounts", "Discounts")
+                        .WithMany()
+                        .HasForeignKey("DiscountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Accounts");
+
+                    b.Navigation("Discounts");
+                });
+
+            modelBuilder.Entity("Diplom.Models.UserDiscountsHistory", b =>
+                {
+                    b.HasOne("Diplom.Models.Accounts", "Accounts")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Diplom.Models.Discounts", "Discounts")
+                        .WithMany()
+                        .HasForeignKey("DiscountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Accounts");
+
+                    b.Navigation("Discounts");
+                });
+
+            modelBuilder.Entity("DiscountsProductsStore", b =>
+                {
+                    b.HasOne("Diplom.Models.Discounts", null)
+                        .WithMany()
+                        .HasForeignKey("DiscountsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Diplom.Models.ProductsStore", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsIdId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Diplom.Models.Accounts", b =>

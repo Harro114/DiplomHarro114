@@ -120,7 +120,8 @@ public class SynchronizationOrders
                     ExpUserId = wallet.Id,
                     Value = exp,
                     CurrentBalance = balance,
-                    CreatedAt = order.DateLastOrder
+                    CreatedAt = order.DateLastOrder,
+                    Discription = "Начисление Exp за покупки в магазине"
                 });
             }
 

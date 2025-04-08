@@ -17,5 +17,5 @@ public class ExpChanges
     public int Value { get; set; }
     public int CurrentBalance { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.Now;
-
+    public string Discription { get; set; }
 }
