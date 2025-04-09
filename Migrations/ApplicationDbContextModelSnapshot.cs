@@ -120,23 +120,29 @@ namespace Diplom.Migrations
                     b.Property<int>("Amount")
                         .HasColumnType("integer");
 
-                    b.Property<int>("CategoriesStoreId")
+                    b.Property<int?>("CategoriesStoreId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<int>("DicountSize")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("ProductsStoreId")
+                    b.Property<int?>("ProductsStoreId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("isActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("isPrimary")
                         .HasColumnType("boolean");
 
                     b.HasKey("Id");
@@ -146,6 +152,26 @@ namespace Diplom.Migrations
                     b.HasIndex("ProductsStoreId");
 
                     b.ToTable("Discounts");
+                });
+
+            modelBuilder.Entity("Diplom.Models.ExchangeDiscounts", b =>
+                {
+                    b.Property<int>("DiscountExchangeOneId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DiscountExchangeTwoId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DiscountId")
+                        .HasColumnType("integer");
+
+                    b.HasIndex("DiscountExchangeOneId");
+
+                    b.HasIndex("DiscountExchangeTwoId");
+
+                    b.HasIndex("DiscountId");
+
+                    b.ToTable("ExchangeDiscounts");
                 });
 
             modelBuilder.Entity("Diplom.Models.ExpChanges", b =>
@@ -418,19 +444,42 @@ namespace Diplom.Migrations
                 {
                     b.HasOne("Diplom.Models.CategoriesStore", "CategoriesStore")
                         .WithMany()
-                        .HasForeignKey("CategoriesStoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CategoriesStoreId");
 
                     b.HasOne("Diplom.Models.ProductsStore", "ProductsStore")
                         .WithMany()
-                        .HasForeignKey("ProductsStoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProductsStoreId");
 
                     b.Navigation("CategoriesStore");
 
                     b.Navigation("ProductsStore");
+                });
+
+            modelBuilder.Entity("Diplom.Models.ExchangeDiscounts", b =>
+                {
+                    b.HasOne("Diplom.Models.Discounts", "DiscountOne")
+                        .WithMany()
+                        .HasForeignKey("DiscountExchangeOneId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Diplom.Models.Discounts", "DiscountTwo")
+                        .WithMany()
+                        .HasForeignKey("DiscountExchangeTwoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Diplom.Models.Discounts", "Discount")
+                        .WithMany()
+                        .HasForeignKey("DiscountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Discount");
+
+                    b.Navigation("DiscountOne");
+
+                    b.Navigation("DiscountTwo");
                 });
 
             modelBuilder.Entity("Diplom.Models.ExpChanges", b =>

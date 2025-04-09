@@ -24,6 +24,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserDiscountsHistory> UserDiscountsHistory { get; set; }
     public DbSet<UserDiscountsActivated> UserDiscountsActivated { get; set; }
     public DbSet<UserDiscountsActivatedHistory> UserDiscountsActivatedHistory { get; set; }
+    public DbSet<ExchangeDiscounts> ExchangeDiscounts { get; set; }
     
     
 
@@ -98,6 +99,7 @@ public class ApplicationDbContext : DbContext
             z.HasMany<CategoriesStore>(ec => ec.CategoriesId)
                 .WithMany()
                 .UsingEntity(j => j.ToTable("CategoriesStoreDiscounts"));
+            
         });
 
         modelBuilder.Entity<UserDiscounts>(z =>
@@ -142,6 +144,20 @@ public class ApplicationDbContext : DbContext
             z.HasOne<Discounts>(ec => ec.Discounts)
                 .WithMany()
                 .HasForeignKey(ec => ec.DiscountId);
+        });
+
+        modelBuilder.Entity<ExchangeDiscounts>(z =>
+        {
+            z.HasNoKey();
+            z.HasOne<Discounts>(ec => ec.Discount)
+                .WithMany()
+                .HasForeignKey(ec => ec.DiscountId);
+            z.HasOne<Discounts>(ec => ec.DiscountOne)
+                .WithMany()
+                .HasForeignKey(ec => ec.DiscountExchangeOneId);
+            z.HasOne<Discounts>(ec => ec.DiscountTwo)
+                .WithMany()
+                .HasForeignKey(ec => ec.DiscountExchangeTwoId);
         });
     }
 }

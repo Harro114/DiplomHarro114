@@ -10,13 +10,14 @@ public class Discounts
     public int Id { get; set; }
     public string Name { get; set; }
     public bool isActive { get; set; }
+    public int DicountSize { get; set; }
     public DateTime StartDate { get; set; }
-    public DateTime EndDate { get; set; }
-    public List<ProductsStore> ProductsId { get; set; }
-    [ForeignKey("ProductsId")]
-    public ProductsStore ProductsStore { get; set; }
-    public List<CategoriesStore> CategoriesId { get; set; }
-    [ForeignKey("CategoriesId")]
-    public CategoriesStore CategoriesStore { get; set; }
+    public DateTime? EndDate { get; set; }
+    public List<ProductsStore>? ProductsId { get; set; }
+    public ProductsStore? ProductsStore { get; set; }
+    public List<CategoriesStore>? CategoriesId { get; set; }
+    public CategoriesStore?CategoriesStore { get; set; }
     public int Amount { get; set; }
+    public bool isPrimary {get;set;}
+
 }

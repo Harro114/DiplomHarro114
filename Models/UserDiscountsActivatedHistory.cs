@@ -14,6 +14,6 @@ public class UserDiscountsActivatedHistory
     public int DiscountId { get; set; }
     [ForeignKey("DiscountId")]
     public Discounts Discounts { get; set; }
-    public DateTime DateActivateDiscount { get; set; } = DateTime.Now;
-    public DateTime DateDelete { get; set; } = DateTime.Now;
+    public DateTime DateActivateDiscount { get; set; }
+    public DateTime DateDelete { get; set; } = DateTime.UtcNow;
 }

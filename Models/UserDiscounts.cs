@@ -16,5 +16,5 @@ public class UserDiscounts
     public int DiscountId { get; set; }
     [ForeignKey("DiscountId")]
     public Discounts Discounts { get; set; }
-    public DateTime DateAccruals { get; set; } = DateTime.Now;
+    public DateTime DateAccruals { get; set; } = DateTime.UtcNow;
 }
