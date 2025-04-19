@@ -37,6 +37,28 @@ namespace Diplom.Migrations
                     b.ToTable("CategoriesStoreDiscounts", (string)null);
                 });
 
+            modelBuilder.Entity("Diplom.Models.AccountPasswords", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AccountId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
+
+                    b.ToTable("AccountPasswords");
+                });
+
             modelBuilder.Entity("Diplom.Models.Accounts", b =>
                 {
                     b.Property<int>("Id")
@@ -123,7 +145,10 @@ namespace Diplom.Migrations
                     b.Property<int?>("CategoriesStoreId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("DicountSize")
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<int>("DiscountSize")
                         .HasColumnType("integer");
 
                     b.Property<DateTime?>("EndDate")
@@ -354,12 +379,6 @@ namespace Diplom.Migrations
 
             modelBuilder.Entity("Diplom.Models.UserDiscountsActivatedHistory", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
                     b.Property<int>("AccountId")
                         .HasColumnType("integer");
 
@@ -372,7 +391,8 @@ namespace Diplom.Migrations
                     b.Property<int>("DiscountId")
                         .HasColumnType("integer");
 
-                    b.HasKey("Id");
+                    b.Property<int>("Id")
+                        .HasColumnType("integer");
 
                     b.HasIndex("AccountId");
 
@@ -384,10 +404,7 @@ namespace Diplom.Migrations
             modelBuilder.Entity("Diplom.Models.UserDiscountsHistory", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AccountId")
                         .HasColumnType("integer");
@@ -402,10 +419,6 @@ namespace Diplom.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AccountId");
-
-                    b.HasIndex("DiscountId");
 
                     b.ToTable("UserDiscountsHistory");
                 });
@@ -438,6 +451,17 @@ namespace Diplom.Migrations
                         .HasForeignKey("DiscountsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Diplom.Models.AccountPasswords", b =>
+                {
+                    b.HasOne("Diplom.Models.Accounts", "Account")
+                        .WithMany()
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Account");
                 });
 
             modelBuilder.Entity("Diplom.Models.Discounts", b =>
@@ -573,25 +597,6 @@ namespace Diplom.Migrations
                 });
 
             modelBuilder.Entity("Diplom.Models.UserDiscountsActivatedHistory", b =>
-                {
-                    b.HasOne("Diplom.Models.Accounts", "Accounts")
-                        .WithMany()
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Diplom.Models.Discounts", "Discounts")
-                        .WithMany()
-                        .HasForeignKey("DiscountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Accounts");
-
-                    b.Navigation("Discounts");
-                });
-
-            modelBuilder.Entity("Diplom.Models.UserDiscountsHistory", b =>
                 {
                     b.HasOne("Diplom.Models.Accounts", "Accounts")
                         .WithMany()

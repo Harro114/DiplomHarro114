@@ -25,6 +25,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserDiscountsActivated> UserDiscountsActivated { get; set; }
     public DbSet<UserDiscountsActivatedHistory> UserDiscountsActivatedHistory { get; set; }
     public DbSet<ExchangeDiscounts> ExchangeDiscounts { get; set; }
+    public DbSet<AccountPasswords> AccountPasswords { get; set; }
+
     
     
 
@@ -127,17 +129,13 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<UserDiscountsHistory>(z =>
         {
             z.HasKey(e => e.Id);
-            z.HasOne<Accounts>(ec => ec.Accounts)
-                .WithMany()
-                .HasForeignKey(ec => ec.AccountId);
-            z.HasOne<Discounts>(ec => ec.Discounts)
-                .WithMany()
-                .HasForeignKey(ec => ec.DiscountId);
+
         });
+        
         
         modelBuilder.Entity<UserDiscountsActivatedHistory>(z =>
         {
-            z.HasKey(e => e.Id);
+            z.HasNoKey();
             z.HasOne<Accounts>(ec => ec.Accounts)
                 .WithMany()
                 .HasForeignKey(ec => ec.AccountId);

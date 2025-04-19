@@ -5,10 +5,12 @@ using Microsoft.Extensions.Logging;
 using Diplom.Models;
 using Diplom.Data;
 using Diplom.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Diplom.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class ExpController : ControllerBase

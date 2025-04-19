@@ -5,8 +5,7 @@ namespace Diplom.Models;
 
 public class UserDiscountsActivatedHistory
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+   
     public int Id { get; set; }
     public int AccountId { get; set; }
     [ForeignKey("AccountId")]

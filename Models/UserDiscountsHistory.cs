@@ -7,15 +7,17 @@ namespace Diplom.Models;
 
 public class UserDiscountsHistory
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key] // Указывает, что это первичный ключ
+    [DatabaseGenerated(DatabaseGeneratedOption.None)]
+
     public int Id { get; set; }
-    public int AccountId { get; set; }
     [ForeignKey("AccountId")]
-    public Accounts Accounts { get; set; }
-    public int DiscountId { get; set; }
+    public int AccountId { get; set; }
+    
     [ForeignKey("DiscountId")]
-    public Discounts Discounts { get; set; }
+    public int DiscountId { get; set; }
+    
+  
     public DateTime DateAccruals { get; set; }
     public DateTime DateDelete { get; set; } = DateTime.UtcNow;
 }

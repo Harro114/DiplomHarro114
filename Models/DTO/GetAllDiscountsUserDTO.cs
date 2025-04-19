@@ -1,13 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿namespace Diplom.Models.DTO;
 
-namespace Diplom.Models;
-
-public class Discounts
+public class GetAllDiscountsUserDTO
 {
-    [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public List<DiscountDTO> Discount { get; set; }
+}
+
+public class DiscountDTO
+{
     public int Id { get; set; }
+    public int DiscountId { get; set; }
     public string Name { get; set; }
     public string? Description { get; set; }
     public bool isActive { get; set; }
@@ -20,5 +21,4 @@ public class Discounts
     public CategoriesStore?CategoriesStore { get; set; }
     public int Amount { get; set; }
     public bool isPrimary {get;set;}
-
 }

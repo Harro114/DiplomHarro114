@@ -1,9 +1,13 @@
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Diplom.Data;
 using Diplom.Syncing;
 using Hangfire;
 using Hangfire.PostgreSql;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +26,40 @@ builder.Services.AddHangfire(config =>
 
 // Регистрация нужных сервисов
 builder.Services.AddTransient<SynchronizationOrders>();
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true, // Проверяет издателя токена
+            ValidateAudience = true, // Проверяет целевую аудиторию токена
+            ValidateLifetime = true, // Проверяет срок действия токена
+            ValidateIssuerSigningKey = true, // Проверяет подпись токена
+
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"], // Указываем издателя
+            ValidAudience = builder.Configuration["JwtSettings:Audience"], // Указываем аудиторию
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Secret"])) // Подключаем секретный ключ
+        };
+    });
+
+builder.Services.AddCors(options =>
+   {
+       options.AddDefaultPolicy(builder =>
+       {
+           builder.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+       });
+   });
+
+   
+
 
 // Добавление Hangfire сервера для обработки задач
 builder.Services.AddHangfireServer();
@@ -47,10 +85,14 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.MapControllers();
-app.UseRouting();
 
+app.UseRouting();
+app.UseCors();
+
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapControllers();
 app.MapRazorPages();
 
 // Подключение панели управления Hangfire
