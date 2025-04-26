@@ -11,11 +11,15 @@ public class UserDiscountsHistory
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
 
     public int Id { get; set; }
-    [ForeignKey("AccountId")]
-    public int AccountId { get; set; }
     
-    [ForeignKey("DiscountId")]
+    public int AccountId { get; set; }
+    [ForeignKey("AccountId")]
+    public Accounts Account { get; set; }
+    
+    
     public int DiscountId { get; set; }
+    [ForeignKey("DiscountId")]
+    public Discounts Discount { get; set; }
     
   
     public DateTime DateAccruals { get; set; }

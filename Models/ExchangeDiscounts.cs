@@ -10,6 +10,8 @@ public class ExchangeDiscounts
     public Discounts Discount { get; set; }
     public int DiscountExchangeOneId { get; set; }
     public Discounts DiscountOne { get; set; }
+    [ForeignKey("DiscountExchangeOneId")]
     public int DiscountExchangeTwoId { get; set; }
+    [ForeignKey("DiscountExchangeTwoId")]
     public Discounts DiscountTwo { get; set; }
 }
