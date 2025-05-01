@@ -24,6 +24,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserDiscountsHistory> UserDiscountsHistory { get; set; }
     public DbSet<UserDiscountsActivated> UserDiscountsActivated { get; set; }
     public DbSet<UserDiscountsActivatedHistory> UserDiscountsActivatedHistory { get; set; }
+    // проверка
     public DbSet<ExchangeDiscounts> ExchangeDiscounts { get; set; }
     public DbSet<AccountPasswords> AccountPasswords { get; set; }
     public DbSet<Roles> Role { get; set; }
