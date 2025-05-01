@@ -24,12 +24,13 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserDiscountsHistory> UserDiscountsHistory { get; set; }
     public DbSet<UserDiscountsActivated> UserDiscountsActivated { get; set; }
     public DbSet<UserDiscountsActivatedHistory> UserDiscountsActivatedHistory { get; set; }
+    // проверка
     public DbSet<ExchangeDiscounts> ExchangeDiscounts { get; set; }
     public DbSet<AccountPasswords> AccountPasswords { get; set; }
     public DbSet<Roles> Role { get; set; }
     public DbSet<AccountRole> AccountRole { get; set; }
 
-    // Метод настройки моделей
+    
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Accounts>(z => { z.HasKey(e => e.Id); }
@@ -79,7 +80,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<ProductsStore>(z => { z.HasKey(e => e.Id); });
 
         modelBuilder.Entity<CategoriesStore>(z => { z.HasKey(e => e.Id); });
-
+        
         modelBuilder.Entity<Discounts>(z =>
         {
             z.HasKey(e => e.Id);
