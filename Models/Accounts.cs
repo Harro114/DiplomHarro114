@@ -12,8 +12,6 @@ public class Accounts
     public string UserLastName { get; set; }
     public string UserFirstName { get; set; }
     public bool Sex { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
-    
-    
-    public virtual ExpUsersWallets ExpUserWallets { get; set; } // без ExpUserId!
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public bool? IsBlocked { get; set; }
 }

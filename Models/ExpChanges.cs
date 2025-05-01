@@ -16,6 +16,6 @@ public class ExpChanges
     public ExpUsersWallets ExpUsersWallets { get; set; }
     public int Value { get; set; }
     public int CurrentBalance { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
-
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public string Discription { get; set; }
 }
