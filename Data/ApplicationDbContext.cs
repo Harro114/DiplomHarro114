@@ -23,21 +23,21 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserDiscounts> UserDiscounts { get; set; }
     public DbSet<UserDiscountsHistory> UserDiscountsHistory { get; set; }
     public DbSet<UserDiscountsActivated> UserDiscountsActivated { get; set; }
+
     public DbSet<UserDiscountsActivatedHistory> UserDiscountsActivatedHistory { get; set; }
+
     // проверка
     public DbSet<ExchangeDiscounts> ExchangeDiscounts { get; set; }
     public DbSet<AccountPasswords> AccountPasswords { get; set; }
     public DbSet<Roles> Role { get; set; }
     public DbSet<AccountRole> AccountRole { get; set; }
 
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Accounts>(z => { z.HasKey(e => e.Id); }
         );
 
-
-        
         modelBuilder.Entity<ExpUsersWallets>(z =>
         {
             z.HasKey(e => e.Id);
@@ -46,8 +46,7 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey<ExpUsersWallets>(eu => eu.AccountId);
         });
 
-
-        // Настройка связи ExpChanges - ExpUsers (многие-к-одному)
+        
         modelBuilder.Entity<ExpChanges>(z =>
         {
             z.HasKey(e => e.Id);
@@ -80,7 +79,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<ProductsStore>(z => { z.HasKey(e => e.Id); });
 
         modelBuilder.Entity<CategoriesStore>(z => { z.HasKey(e => e.Id); });
-        
+
         modelBuilder.Entity<Discounts>(z =>
         {
             z.HasKey(e => e.Id);
@@ -123,7 +122,6 @@ public class ApplicationDbContext : DbContext
             z.HasOne<Discounts>(ec => ec.Discount)
                 .WithMany()
                 .HasForeignKey(ec => ec.DiscountId);
-                
         });
 
 
@@ -152,10 +150,7 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(ec => ec.DiscountExchangeTwoId);
         });
 
-        modelBuilder.Entity<Roles>(z =>
-        {
-            z.HasKey(e => e.Id); 
-        });
+        modelBuilder.Entity<Roles>(z => { z.HasKey(e => e.Id); });
 
         modelBuilder.Entity<AccountRole>(z =>
         {
