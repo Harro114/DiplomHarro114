@@ -154,7 +154,7 @@ public class ProfileController : ControllerBase
         }
         catch (Exception e)
         {
-            return StatusCode(500, "Произошла ошибка при обработке вашего запроса.");
+            return StatusCode(500, "Произошла ошибка при обработке вашего запроса." + e.Message);
         }
     }
 }
