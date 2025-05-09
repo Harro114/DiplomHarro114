@@ -1,8 +1,18 @@
 ﻿using Diplom.Data;
+using Diplom.Models;
+using Diplom.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace Diplom.Controllers;
 
-public class AdminController
+[Authorize]
+[ApiController]
+[Route("api/[controller]")]
+public class AdminController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<ExpController> _logger;
@@ -228,6 +238,108 @@ public class AdminController
             throw;
         }
     }
+
+    [HttpGet("getAllProducts")]
+    [Authorize]
+    public async Task<ActionResult<ProductsStore>> GetAllProducts()
+    {
+        try
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("Токен недействителен или не содержит необходимую информацию.");
+            }
+            var roleUser = await _context.AccountRole.FirstOrDefaultAsync(r => r.AccountId == int.Parse(userId));
+            if (roleUser.RoleId != 2 || roleUser.RoleId == null)
+            {
+                return Unauthorized("Пользователь не является администратором!");
+            }
+            
+            var products = await _context.ProductsStore.ToListAsync();
+            return Ok(products);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Не удалось вернуть список товаров");
+            return BadRequest("Не удалось вернуть список товаров" + e);
+            throw;
+        }
+    }
+
+    [HttpGet("getAllCategories")]
+    [Authorize]
+    public async Task<ActionResult<CategoriesStore>> GetAllCategories()
+    {
+        try
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("Токен недействителен или не содержит необходимую информацию.");
+            }
+            var roleUser = await _context.AccountRole.FirstOrDefaultAsync(r => r.AccountId == int.Parse(userId));
+            if (roleUser.RoleId != 2 || roleUser.RoleId == null)
+            {
+                return Unauthorized("Пользователь не является администратором!");
+            }
+            var categories = await _context.CategoriesStore.ToListAsync();
+            return Ok(categories);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Не удалось вернуть список категорий");
+            return BadRequest("Не удалось вернуть список категорий" + e);
+            throw;
+        }
+    }
     
-    
+    [HttpPost("createDiscount")]
+    [Authorize]
+    public async Task<ActionResult<Discounts>> CreatedDiscount(
+        [FromBody] Discounts discounts)
+    {
+        try
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("Токен недействителен или не содержит необходимую информацию.");
+            }
+            var roleUser = await _context.AccountRole.FirstOrDefaultAsync(r => r.AccountId == int.Parse(userId));
+            if (roleUser.RoleId != 2 || roleUser.RoleId == null)
+            {
+                return Unauthorized("Пользователь не является администратором!");
+            }
+            
+            var products = await _context.ProductsStore.Where(a => a.isActive == true).ToListAsync();
+            var categories = await _context.CategoriesStore.Where(a => a.isActive == true).ToListAsync();
+            foreach (var product in discounts.ProductsId)
+            {
+                if (!products.Any(p => p.Id == product.Id))
+                {
+                    return BadRequest("Не все товары активны");
+                }
+            }
+            foreach (var category in discounts.CategoriesId)
+            {
+                if (!categories.Any(p => p.Id == category.Id))
+                {
+                    return BadRequest("Не все категории активны");
+                }
+
+            }
+
+
+            _context.Discounts.Add(discounts);
+            await _context.SaveChangesAsync();
+            return Ok(discounts);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Не удалось создать скидку");
+            return BadRequest("Не удалось создать скидку" + e);
+            throw;
+        }
+    }
 }
