@@ -13,10 +13,12 @@ namespace Diplom.Controllers;
 public class ProfileController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger _logger;
 
-    public ProfileController(ApplicationDbContext context)
+    public ProfileController(ApplicationDbContext context, ILogger<ProfileController> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     [HttpGet("")]
@@ -157,4 +159,55 @@ public class ProfileController : ControllerBase
             return StatusCode(500, "Произошла ошибка при обработке вашего запроса." + e.Message);
         }
     }
+
+
+    [HttpGet("checkRole")]
+    [Authorize]
+    public async Task<ActionResult<AccountRole>> CheckRole()
+    {
+        try
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("Токен недействителен или не содержит необходимую информацию.");
+            }
+            var role = await _context.AccountRole.FirstOrDefaultAsync(r => r.AccountId == int.Parse(userId));
+            return Ok(role);
+            
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Не удалось вернуть роль");
+            return BadRequest("Не удалось вернуть роль");
+            throw;
+        }
+    }
+
+    [HttpGet("getExpCount")]
+    [Authorize]
+    public async Task<ActionResult<int>> GetExpCount()
+    {
+        try
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("Токен недействителен или не содержит необходимую информацию.");
+            }
+            var wallet = await _context.ExpUsersWallets.FirstOrDefaultAsync(euw => euw.AccountId == int.Parse(userId));
+            if (wallet == null)
+            {
+                return BadRequest("Кошелек не найден");
+            }
+            return Ok(wallet.ExpValue);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Не удалось вернуть баланс пользователя");
+            return BadRequest("Не удалось вернуть баланс пользователя");
+            throw;
+        }
+    }
+    
 }

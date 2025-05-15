@@ -29,6 +29,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Roles> Role { get; set; }
     public DbSet<AccountRole> AccountRole { get; set; }
 
+
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -84,9 +85,12 @@ public class ApplicationDbContext : DbContext
             z.HasMany<ProductsStore>(ec => ec.ProductsId)
                 .WithMany()
                 .UsingEntity(j => j.ToTable("DiscountsProductsStore"));
+                    
             z.HasMany<CategoriesStore>(ec => ec.CategoriesId)
                 .WithMany()
                 .UsingEntity(j => j.ToTable("CategoriesStoreDiscounts"));
+
+
         });
 
         modelBuilder.Entity<UserDiscounts>(z =>
@@ -137,10 +141,10 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<ExchangeDiscounts>(z =>
         {
-            z.HasNoKey();
+            z.HasKey(e => e.Id);
             z.HasOne<Discounts>(ec => ec.Discount)
-                .WithOne()
-                .HasForeignKey<ExchangeDiscounts>(ec => ec.DiscountId);
+                .WithMany()
+                .HasForeignKey(ec => ec.DiscountId);
             z.HasOne<Discounts>(ec => ec.DiscountOne)
                 .WithMany()
                 .HasForeignKey(ec => ec.DiscountExchangeOneId);
@@ -172,5 +176,7 @@ public class ApplicationDbContext : DbContext
                 .WithOne()
                 .HasForeignKey<AccountPasswords>(ec => ec.AccountId);
         });
+        
+        
     }
 }

@@ -6,6 +6,9 @@ namespace Diplom.Models;
 
 public class ExchangeDiscounts
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public int Id { get; set; } 
     public int DiscountId { get; set; }
     public Discounts Discount { get; set; }
     public int DiscountExchangeOneId { get; set; }

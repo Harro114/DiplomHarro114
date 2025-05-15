@@ -290,7 +290,7 @@ public class DiscountsController : ControllerBase
                         DiscountSize = d.DiscountSize,
                         StartDate = d.StartDate,
                         EndDate = d.EndDate,
-                        ProductsStore = d.ProductsStore,
+                        ProductsId = d.ProductsId,
                         CategoriesId = d.CategoriesId,
                         Amount = d.Amount,
                         isPrimary = d.isPrimary
@@ -330,7 +330,7 @@ public class DiscountsController : ControllerBase
                     DiscountSize = x.d.DiscountSize,
                     StartDate = x.d.StartDate,
                     EndDate = x.d.EndDate,
-                    ProductsStore = x.d.ProductsStore,
+                    ProductsId = x.d.ProductsId,
                     CategoriesId = x.d.CategoriesId,
                     Amount = x.d.Amount,
                     isPrimary = x.d.isPrimary
@@ -349,7 +349,7 @@ public class DiscountsController : ControllerBase
                     DiscountSize = x.d.DiscountSize,
                     StartDate = x.d.StartDate,
                     EndDate = x.d.EndDate,
-                    ProductsStore = x.d.ProductsStore,
+                    ProductsId = x.d.ProductsId,
                     CategoriesId = x.d.CategoriesId,
                     Amount = x.d.Amount,
                     isPrimary = x.d.isPrimary
