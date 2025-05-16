@@ -26,6 +26,8 @@ builder.Services.AddHangfire(config =>
 
 // Регистрация нужных сервисов
 builder.Services.AddTransient<SynchronizationOrders>();
+builder.Services.AddTransient<SynchronizationUsers>();
+builder.Services.AddTransient<SynchronizationProductsAndCategories>();
 
 builder.Services.AddAuthentication(options =>
     {
@@ -74,6 +76,10 @@ using (var scope = app.Services.CreateScope())
 {
     var synchronizationOrders = scope.ServiceProvider.GetRequiredService<SynchronizationOrders>();
     synchronizationOrders.ConfigureJobs();
+    var synchronizationUsers = scope.ServiceProvider.GetRequiredService<SynchronizationUsers>();
+    synchronizationUsers.ConfigureJobs();
+    var synchronizationProductsAndCategories = scope.ServiceProvider.GetRequiredService<SynchronizationProductsAndCategories>();
+    synchronizationProductsAndCategories.ConfigureJobs();
 }
 
 // Если не в режиме разработки, настраиваем обработку ошибок

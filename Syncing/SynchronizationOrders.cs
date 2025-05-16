@@ -30,13 +30,13 @@ public class SynchronizationOrders
         _recurringJobManager.AddOrUpdate(
                 "sync-orders-job", // Идентификатор задания
                 () => SyncOrders(), // Метод для синхронизации заказов
-                "0 2 * * *", // Cron выражение: каждую ночь в 2:00 UTC
+                _config["SyncOrders:cron"], // Cron выражение: каждую ночь в 2:00 UTC
                 TimeZoneInfo.Local); // Локальная временная зона
         // Настройка cron для расчёта EXP каждую ночь в 3:00
         _recurringJobManager.AddOrUpdate(
             "calculate-exp-job", // Идентификатор задания
             () => CalculateExp(), // Метод для вычисления EXP
-            "0 3 * * *", // Cron выражение: каждую ночь в 3:00 UTC
+            _config["SyncOrders:cron"], // Cron выражение: каждую ночь в 3:00 UTC
             TimeZoneInfo.Local); // Локальная временная зона
     }
 
@@ -45,7 +45,7 @@ public class SynchronizationOrders
     {
         try
         {
-            _logger.LogInformation("Starting order sync at {Time}", DateTime.UtcNow);
+            _logger.LogInformation("Запущена синхронизация товаров в {Time}", DateTime.UtcNow);
             var lastDate = await _context.Config.FirstOrDefaultAsync(c => c.Name == "LastDateOrder");
             
             var lastDateOrder = lastDate?.ValueDate ?? new DateTime(2000, 4, 7);
