@@ -1,16 +1,15 @@
-﻿using Diplom.Models;
+﻿using Gamification.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Diplom.Data;
+namespace Gamification.Data;
 
 public class ApplicationDbContext : DbContext
 {
-    // Конструктор
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
 
-    // DbSet для каждой из моделей
+
     public DbSet<Accounts> Accounts { get; set; }
     public DbSet<ExpChanges> ExpChanges { get; set; }
     public DbSet<ExpUsersWallets> ExpUsersWallets { get; set; }
@@ -30,14 +29,13 @@ public class ApplicationDbContext : DbContext
     public DbSet<AccountRole> AccountRole { get; set; }
 
 
-    
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Accounts>(z => { z.HasKey(e => e.Id); }
         );
 
 
-        
         modelBuilder.Entity<ExpUsersWallets>(z =>
         {
             z.HasKey(e => e.Id);
@@ -45,7 +43,7 @@ public class ApplicationDbContext : DbContext
                 .WithOne()
                 .HasForeignKey<ExpUsersWallets>(eu => eu.AccountId);
         });
-        
+
         modelBuilder.Entity<ExpChanges>(z =>
         {
             z.HasKey(e => e.Id);
@@ -78,19 +76,17 @@ public class ApplicationDbContext : DbContext
         modelBuilder.Entity<ProductsStore>(z => { z.HasKey(e => e.Id); });
 
         modelBuilder.Entity<CategoriesStore>(z => { z.HasKey(e => e.Id); });
-        
+
         modelBuilder.Entity<Discounts>(z =>
         {
             z.HasKey(e => e.Id);
             z.HasMany<ProductsStore>(ec => ec.ProductsId)
                 .WithMany()
                 .UsingEntity(j => j.ToTable("DiscountsProductsStore"));
-                    
+
             z.HasMany<CategoriesStore>(ec => ec.CategoriesId)
                 .WithMany()
                 .UsingEntity(j => j.ToTable("CategoriesStoreDiscounts"));
-
-
         });
 
         modelBuilder.Entity<UserDiscounts>(z =>
@@ -124,13 +120,14 @@ public class ApplicationDbContext : DbContext
             z.HasOne<Discounts>(ec => ec.Discount)
                 .WithMany()
                 .HasForeignKey(ec => ec.DiscountId);
-                
         });
 
 
         modelBuilder.Entity<UserDiscountsActivatedHistory>(z =>
         {
-            z.HasNoKey();
+            z.HasKey(e => e.Id);
+            z.Property(x => x.Id)
+                .ValueGeneratedNever();
             z.HasOne<Accounts>(ec => ec.Accounts)
                 .WithMany()
                 .HasForeignKey(ec => ec.AccountId);
@@ -153,10 +150,7 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(ec => ec.DiscountExchangeTwoId);
         });
 
-        modelBuilder.Entity<Roles>(z =>
-        {
-            z.HasKey(e => e.Id); 
-        });
+        modelBuilder.Entity<Roles>(z => { z.HasKey(e => e.Id); });
 
         modelBuilder.Entity<AccountRole>(z =>
         {
@@ -165,8 +159,8 @@ public class ApplicationDbContext : DbContext
                 .WithOne()
                 .HasForeignKey<AccountRole>(ec => ec.AccountId);
             z.HasOne<Roles>(ec => ec.Role)
-                .WithOne()
-                .HasForeignKey<AccountRole>(ec => ec.RoleId);
+                .WithMany()
+                .HasForeignKey(ec => ec.RoleId);
         });
 
         modelBuilder.Entity<AccountPasswords>(z =>
@@ -176,7 +170,5 @@ public class ApplicationDbContext : DbContext
                 .WithOne()
                 .HasForeignKey<AccountPasswords>(ec => ec.AccountId);
         });
-        
-        
     }
 }

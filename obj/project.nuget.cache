@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "fbb8GOsUMt0=",
+  "dgSpecHash": "b4RuycWJacs=",
   "success": true,
-  "projectFilePath": "C:\\Users\\maksi.VL\\RiderProjects\\ Diplom\\Diplom.csproj",
+  "projectFilePath": "C:\\Users\\maksi.VL\\RiderProjects\\ Diplom\\Gamification.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\maksi.VL\\.nuget\\packages\\dapper\\2.0.123\\dapper.2.0.123.nupkg.sha512",
     "C:\\Users\\maksi.VL\\.nuget\\packages\\hangfire.aspnetcore\\1.8.18\\hangfire.aspnetcore.1.8.18.nupkg.sha512",

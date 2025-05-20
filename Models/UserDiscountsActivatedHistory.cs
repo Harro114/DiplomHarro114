@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Diplom.Models;
+namespace Gamification.Models;
 
 public class UserDiscountsActivatedHistory
 {
-   
+    [Key]
     public int Id { get; set; }
     public int AccountId { get; set; }
     [ForeignKey("AccountId")]

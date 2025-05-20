@@ -1,14 +1,13 @@
-﻿using Diplom.Data;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Diplom.Models;
-using Diplom.Data;
-using Diplom.Models.DTO;
+using Gamification.Data;
+using Gamification.Models;
+using Gamification.Models.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace Diplom.Controllers;
+namespace Gamification.Controllers;
 
 [Authorize]
 [ApiController]
@@ -28,7 +27,7 @@ public class ExpController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while initializing ExpController.");
+            _logger.LogError(ex, "Не удалось инициализировать контроллер Exp.");
             throw;
         }
     }

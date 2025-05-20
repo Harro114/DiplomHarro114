@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 
 
-namespace Diplom.Models;
+namespace Gamification.Models;
 
 public class ExpUsersWallets
 {

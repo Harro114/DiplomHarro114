@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Diplom.Models.DTO;
+namespace Gamification.Models.DTO;
 
 public class UsersDTO
 {

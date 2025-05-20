@@ -1,4 +1,4 @@
-﻿namespace Diplom.Models
+﻿namespace Gamification.Models
 {
     public class UserLoginDto
     {

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Diplom.Models;
+namespace Gamification.Models;
 
 public class Discounts
 {
@@ -17,6 +17,7 @@ public class Discounts
     public List<ProductsStore>? ProductsId { get; set; }
     
     public List<CategoriesStore>? CategoriesId { get; set; }
+    public bool isArchived { get; set; } = false;
 
 
 

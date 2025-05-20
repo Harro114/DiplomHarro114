@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Diplom.Models.DTO;
+namespace Gamification.Models.DTO;
 
 public class UsersResponseDTO
 {

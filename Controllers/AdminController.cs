@@ -1,6 +1,6 @@
-﻿using Diplom.Data;
-using Diplom.Models;
-using Diplom.Models.DTO;
+﻿using Gamification.Data;
+using Gamification.Models;
+using Gamification.Models.DTO;
 using Hangfire.States;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 
-namespace Diplom.Controllers;
+namespace Gamification.Controllers;
 
 [Authorize]
 [ApiController]
@@ -386,7 +386,9 @@ public class AdminController : ControllerBase
                 return Unauthorized("Пользователь не является администратором!");
             }
 
-            var discounts = await _context.Discounts.ToListAsync();
+            var discounts = await _context.Discounts
+                .Where(x => x.isArchived == false)
+                .ToListAsync();
             return Ok(discounts);
         }
         catch (Exception e)
@@ -459,8 +461,9 @@ public class AdminController : ControllerBase
             }
 
             var discount = await _context.Discounts
-                .Include(d => d.ProductsId) // Загрузка связанных продуктов
-                .Include(d => d.CategoriesId) // Загрузка связанных категорий
+                .Include(d => d.ProductsId) 
+                .Include(d => d.CategoriesId)
+                .Where(d => d.isArchived == false)
                 .FirstOrDefaultAsync(d => d.Id == discountId);
 
 
@@ -504,7 +507,7 @@ public class AdminController : ControllerBase
                 return BadRequest("Данная скидка не найдена");
             }
 
-            _context.Discounts.Remove(discount);
+            discount.isArchived = true;
             await _context.SaveChangesAsync();
             return Ok(discount);
         }
@@ -539,11 +542,19 @@ public class AdminController : ControllerBase
             {
                 return BadRequest("Данная скидка не найдена");
             }
-
-            _context.Discounts.Remove(discount);
-            await _context.SaveChangesAsync();
-
-            _context.Discounts.Add(updatedDiscount);
+            await _context.Database.ExecuteSqlRawAsync(@"DELETE FROM ""DiscountsProductsStore"" WHERE ""DiscountsId"" = {0}", updatedDiscount.Id);
+            await _context.Database.ExecuteSqlRawAsync(@"DELETE FROM ""CategoriesStoreDiscounts"" WHERE ""DiscountsId"" = {0}", updatedDiscount.Id);
+            discount.Name = updatedDiscount.Name;
+            discount.Description = updatedDiscount.Description;
+            discount.isActive = updatedDiscount.isActive;
+            discount.ProductsId = updatedDiscount.ProductsId;
+            discount.CategoriesId = updatedDiscount.CategoriesId;
+            discount.StartDate = updatedDiscount.StartDate;
+            discount.EndDate = updatedDiscount.EndDate;
+            discount.Amount = updatedDiscount.Amount;
+            discount.isPrimary = updatedDiscount.isPrimary;
+            discount.DiscountSize = updatedDiscount.DiscountSize;
+            discount.isArchived = false;
             await _context.SaveChangesAsync();
             return Ok(updatedDiscount);
         }
@@ -625,6 +636,17 @@ public class AdminController : ControllerBase
             {
                 AccountId = chargeDiscountDto.AccountId,
                 DiscountId = chargeDiscountDto.DiscountId
+            });
+            var wallet =
+                await _context.ExpUsersWallets.FirstOrDefaultAsync(euw => euw.AccountId == chargeDiscountDto.AccountId);
+            var disc = await _context.Discounts.FirstOrDefaultAsync(d => d.Id == chargeDiscountDto.DiscountId);
+            await _context.ExpChanges.AddAsync(new ExpChanges
+            {
+                AccountId = chargeDiscountDto.AccountId,
+                ExpUserId = wallet.Id,
+                Value = 0,
+                CurrentBalance = wallet.ExpValue,
+                Discription = $"Вам начислена скидка {disc.Name}"
             });
             await _context.SaveChangesAsync();
             return Ok(discount.Entity);
@@ -1003,19 +1025,19 @@ public class AdminController : ControllerBase
             
             var exchangeDiscounts = await _context.ExchangeDiscounts
                 .Join(
-                    _context.Discounts, 
+                    _context.Discounts.Where(z => z.isArchived == false), 
                     ed => ed.DiscountId, // Соединяем по DiscountId
                     d => d.Id, 
                     (ed, d0) => new { ed, MainDiscountName = d0.Name } // Название основной скидки
                 )
                 .Join(
-                    _context.Discounts, 
+                    _context.Discounts.Where(z => z.isArchived == false), 
                     ed => ed.ed.DiscountExchangeOneId, // Соединяем по DiscountExchangeOneId
                     d => d.Id, 
                     (ed, d1) => new { ed, DiscountExchangeOneName = d1.Name } // Название первого обмена
                 )
                 .Join(
-                    _context.Discounts, 
+                    _context.Discounts.Where(z => z.isArchived == false), 
                     ed => ed.ed.ed.DiscountExchangeTwoId, // Соединяем по DiscountExchangeTwoId
                     d => d.Id, 
                     (ed, d2) => new GetExchangeDiscountsDTO
@@ -1119,7 +1141,7 @@ public class AdminController : ControllerBase
             }
             
             var discounts = await _context.Discounts
-                .Where(d => d.isPrimary == false)
+                .Where(d => d.isPrimary == false && d.isActive == true && d.isArchived == false)
                 .ToListAsync();
             return Ok(discounts);
         }
@@ -1130,8 +1152,4 @@ public class AdminController : ControllerBase
             throw;
         }
     }
-    
-    
-    
-    
 }

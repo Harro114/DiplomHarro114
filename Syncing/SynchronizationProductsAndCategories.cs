@@ -1,10 +1,10 @@
-﻿using Diplom.Data;
-using Diplom.Models;
-using Diplom.Models.DTO;
+﻿using Gamification.Data;
+using Gamification.Models;
+using Gamification.Models.DTO;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
-namespace Diplom.Syncing;
+namespace Gamification.Syncing;
 
 public class SynchronizationProductsAndCategories
 {
@@ -32,13 +32,13 @@ public class SynchronizationProductsAndCategories
             _config["SyncProducts:cron"],
             TimeZoneInfo.Local
         );
-        
+
         _recurringJobManager.AddOrUpdate<SynchronizationProductsAndCategories>(
             "SyncCategories",
             x => x.SyncCategories(),
             _config["SyncCategories:cron"],
             TimeZoneInfo.Local
-            );
+        );
     }
 
     public async Task SyncProducts()
@@ -67,16 +67,16 @@ public class SynchronizationProductsAndCategories
             foreach (var product in products)
             {
                 if (existingProduct.Any(u => u.Name == product.name)) continue;
-                
+
                 await _context.ProductsStore.AddAsync(new ProductsStore
                 {
                     Name = product.name,
                     isActive = product.is_active
                 });
-
             }
 
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Синхронизация товаров успешно завершена");
         }
         catch (Exception e)
         {
@@ -84,7 +84,7 @@ public class SynchronizationProductsAndCategories
             throw;
         }
     }
-    
+
     public async Task SyncCategories()
     {
         try
@@ -111,16 +111,16 @@ public class SynchronizationProductsAndCategories
             foreach (var categorie in categories)
             {
                 if (existingCategory.Any(u => u.Name == categorie.name)) continue;
-                
+
                 await _context.CategoriesStore.AddAsync(new CategoriesStore
                 {
                     Name = categorie.name,
                     isActive = categorie.is_active
                 });
-
             }
 
             await _context.SaveChangesAsync();
+            _logger.LogInformation("Синхронизация категорий успешно завершена");
         }
         catch (Exception e)
         {

@@ -1,8 +1,8 @@
 {
   "Files": [
     {
-      "Id": "C:\\Users\\maksi.VL\\RiderProjects\\ Diplom\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\Diplom.bundle.scp.css",
-      "PackagePath": "staticwebassets\\Diplom.bundle.scp.css"
+      "Id": "C:\\Users\\maksi.VL\\RiderProjects\\ Diplom\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\Gamification.bundle.scp.css",
+      "PackagePath": "staticwebassets\\Gamification.bundle.scp.css"
     },
     {
       "Id": "C:\\Users\\maksi.VL\\RiderProjects\\ Diplom\\wwwroot\\css\\site.css",
@@ -245,20 +245,20 @@
       "PackagePath": "staticwebassets\\lib\\jquery\\dist\\jquery.min.map"
     },
     {
-      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.Diplom.Microsoft.AspNetCore.StaticWebAssets.props",
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.Gamification.Microsoft.AspNetCore.StaticWebAssets.props",
       "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
     },
     {
-      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.Diplom.props",
-      "PackagePath": "build\\Diplom.props"
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.Gamification.props",
+      "PackagePath": "build\\Gamification.props"
     },
     {
-      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.Diplom.props",
-      "PackagePath": "buildMultiTargeting\\Diplom.props"
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.Gamification.props",
+      "PackagePath": "buildMultiTargeting\\Gamification.props"
     },
     {
-      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.Diplom.props",
-      "PackagePath": "buildTransitive\\Diplom.props"
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.Gamification.props",
+      "PackagePath": "buildTransitive\\Gamification.props"
     }
   ],
   "ElementsToRemove": []

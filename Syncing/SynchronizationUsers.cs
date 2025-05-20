@@ -1,10 +1,10 @@
-﻿using Diplom.Data;
-using Diplom.Models;
-using Diplom.Models.DTO;
+﻿using Gamification.Data;
+using Gamification.Models;
+using Gamification.Models.DTO;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 
-namespace Diplom.Syncing;
+namespace Gamification.Syncing;
 
 public class SynchronizationUsers
 {
@@ -60,47 +60,76 @@ public class SynchronizationUsers
             foreach (var user in users)
             {
                 // Проверяем наличие пользователя по Username
-                if (existingAccounts.Any(u => u.Username == user.username)) continue;
-
-                // Добавляем нового пользователя
-                await _context.Accounts.AddAsync(new Accounts
+                if (existingAccounts.Any(u => u.Username == user.username))
                 {
-                    Username = user.username,
-                    UserLastName = user.last_name,
-                    UserFirstName = user.first_name,
-                    Sex = user.sex,
-                    IsBlocked = user.is_blocked,
-                    CreatedAt = DateTime.SpecifyKind(user.created_at, DateTimeKind.Utc)
-                });
+                    try
+                    {
+                        var existingAccount =
+                            await _context.Accounts.FirstOrDefaultAsync(a => a.Username == user.username);
+                        existingAccount.UserFirstName = user.first_name;
+                        existingAccount.UserLastName = user.last_name;
+                        existingAccount.Username = user.username;
+                        existingAccount.Sex = user.sex;
+                        existingAccount.IsBlocked = user.is_blocked;
+                        var accountPassword =
+                            await _context.AccountPasswords.FirstOrDefaultAsync(a => a.AccountId == existingAccount.Id);
+                        accountPassword.PasswordHash = user.password;
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, $"Не удалось обновить информацию по пользователю {user.username}");
+                    }
 
-                // Сохраняем текущее состояние, чтобы избежать накопления конфликтов записей
-                await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
+                    continue;
+                }
 
-                // Добавляем записи паролей и кошельков для пользователя, только если добавление пользователя успешно
-                var createdAccount = await _context.Accounts.AsNoTracking()
-                    .FirstOrDefaultAsync(u => u.Username == user.username);
+                ;
 
-                if (createdAccount != null)
+                try
                 {
-                    await _context.AccountPasswords.AddAsync(new AccountPasswords
+                    await _context.Accounts.AddAsync(new Accounts
                     {
-                        AccountId = createdAccount.Id,
-                        PasswordHash = user.password
+                        Username = user.username,
+                        UserLastName = user.last_name,
+                        UserFirstName = user.first_name,
+                        Sex = user.sex,
+                        IsBlocked = user.is_blocked,
+                        CreatedAt = DateTime.SpecifyKind(user.created_at, DateTimeKind.Utc)
                     });
-                    await _context.ExpUsersWallets.AddAsync(new ExpUsersWallets
+
+                    await _context.SaveChangesAsync();
+
+                    var createdAccount = await _context.Accounts.AsNoTracking()
+                        .FirstOrDefaultAsync(u => u.Username == user.username);
+
+                    if (createdAccount != null)
                     {
-                        AccountId = createdAccount.Id,
-                        ExpValue = 0
-                    });
-                    await _context.AccountRole.AddAsync(new AccountRole
-                    {
-                        AccountId = createdAccount.Id,
-                        RoleId = 1
-                    });
+                        await _context.AccountPasswords.AddAsync(new AccountPasswords
+                        {
+                            AccountId = createdAccount.Id,
+                            PasswordHash = user.password
+                        });
+                        await _context.ExpUsersWallets.AddAsync(new ExpUsersWallets
+                        {
+                            AccountId = createdAccount.Id,
+                            ExpValue = 0
+                        });
+                        await _context.AccountRole.AddAsync(new AccountRole
+                        {
+                            AccountId = createdAccount.Id,
+                            RoleId = 1
+                        });
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, $"Не удалось просинхирить пользователя {user.username}");
                 }
             }
-
-            await _context.SaveChangesAsync();
+            _logger.LogInformation("Синхронизация пользователей успешно завершена");
         }
         catch (Exception e)
         {

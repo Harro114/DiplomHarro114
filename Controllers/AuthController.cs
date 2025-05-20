@@ -2,15 +2,15 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Diplom.Data;
-using Diplom.Models;
-using Diplom.Models.DTO;
+using Gamification.Data;
+using Gamification.Models;
+using Gamification.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 
-namespace Diplom.Controllers
+namespace Gamification.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -28,21 +28,23 @@ namespace Diplom.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] UserLoginDto userDto)
         {
-            // Проверяем, существует ли пользователь
             var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Username == userDto.Username);
             if (account == null)
             {
                 return Unauthorized("Пользователь не найден.");
             }
 
-            // Проверяем совпадение пароля
             var passwordEntry = await _context.AccountPasswords.FirstOrDefaultAsync(p => p.AccountId == account.Id);
             if (passwordEntry == null || passwordEntry.PasswordHash != HashPassword(userDto.Password))
             {
                 return Unauthorized("Неправильный пароль.");
             }
 
-            // Генерируем JWT токен
+            if (account.IsBlocked == true)
+            {
+                return Conflict("Аккаунт заблокирован");
+            }
+
             var token = GenerateJwtToken(account);
             return Ok(new { Token = token });
         }
@@ -55,8 +57,8 @@ namespace Diplom.Controllers
                 new Claim(ClaimTypes.NameIdentifier, account.Id.ToString())
             };
 
-            // Замените ключ на строку длиной не менее 16 символов
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Secret"] ?? string.Empty));
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_configuration["JwtSettings:Secret"] ?? string.Empty));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
@@ -71,7 +73,6 @@ namespace Diplom.Controllers
         }
 
 
-        // Новый метод для хэширования паролей
         private string HashPassword(string password)
         {
             using (var sha256 = SHA256.Create())
@@ -84,24 +85,21 @@ namespace Diplom.Controllers
         [HttpPost("create-account")]
         public async Task<IActionResult> CreateAccount([FromBody] CreateAccountPasswordDto dto)
         {
-            // Проверяем, существует ли аккаунт с указанным AccountId
             var existingAccount = await _context.Accounts.FirstOrDefaultAsync(a => a.Id == dto.AccountId);
             if (existingAccount == null)
             {
                 return NotFound(new { Message = "Аккаунт с указанным AccountId не найден." });
             }
 
-            // Проверяем, существует ли уже запись в AccountPasswords для этого аккаунта
-            var existingPasswordEntry = await _context.AccountPasswords.FirstOrDefaultAsync(p => p.AccountId == dto.AccountId);
+            var existingPasswordEntry =
+                await _context.AccountPasswords.FirstOrDefaultAsync(p => p.AccountId == dto.AccountId);
             if (existingPasswordEntry != null)
             {
                 return BadRequest(new { Message = "Пароль для этого аккаунта уже установлен." });
             }
 
-            // Генерируем хэш пароля
             var hashedPassword = HashPassword(dto.Password);
 
-            // Создаём запись в таблице AccountPasswords
             var accountPassword = new AccountPasswords
             {
                 AccountId = dto.AccountId,
@@ -111,14 +109,11 @@ namespace Diplom.Controllers
             await _context.AccountPasswords.AddAsync(accountPassword);
             await _context.SaveChangesAsync();
 
-            // Возвращаем успешный результат
             return Ok(new
             {
                 Message = "Пароль успешно создан и связан с аккаунтом.",
                 AccountId = dto.AccountId
             });
         }
-
-
     }
 }

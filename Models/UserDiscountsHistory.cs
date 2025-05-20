@@ -3,11 +3,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace Diplom.Models;
+namespace Gamification.Models;
 
 public class UserDiscountsHistory
 {
-    [Key] // Указывает, что это первичный ключ
+    [Key] 
     [DatabaseGenerated(DatabaseGeneratedOption.None)]
 
     public int Id { get; set; }

@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Diplom.Models;
+namespace Gamification.Models;
 
 public class Config
 {

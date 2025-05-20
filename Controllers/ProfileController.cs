@@ -1,11 +1,11 @@
-﻿using Diplom.Data;
-using Diplom.Models;
-using Diplom.Models.DTO;
+﻿using Gamification.Data;
+using Gamification.Models;
+using Gamification.Models.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Diplom.Controllers;
+namespace Gamification.Controllers;
 
 [Authorize]
 [ApiController]
@@ -24,32 +24,38 @@ public class ProfileController : ControllerBase
     [HttpGet("")]
     public async Task<ActionResult<UserProfileDto>> GetProfile()
     {
-        // Извлечение идентификатора пользователя из токена
-        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (userId == null)
+        try
         {
-            return Unauthorized("Токен недействителен или не содержит необходимую информацию.");
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("Токен недействителен или не содержит необходимую информацию.");
+            }
+        
+            var user = await _context.Accounts.FirstOrDefaultAsync(a =>
+                int.Parse(userId) == a.Id); 
+            if (user == null)
+            {
+                return NotFound("Пользователь не найден.");
+            }
+        
+            var userProfileDto = new UserProfileDto
+            {
+                Id = user.Id,
+                Name = user.Username,
+                LastName = user.UserLastName,
+                FirstName = user.UserFirstName,
+                isBlocked = user.IsBlocked ?? false,
+            };
+
+            return Ok(userProfileDto);
         }
-
-        // Получаем данные пользователя из базы данных
-        var user = await _context.Accounts.FirstOrDefaultAsync(a =>
-            int.Parse(userId) == a.Id); // Укажите тип ID пользователя, например, int
-        if (user == null)
+        catch (Exception e)
         {
-            return NotFound("Пользователь не найден.");
+            _logger.LogError(e, "Не удалось получить профиль");
+            return BadRequest("Не удалось получить профиль");
+            throw;
         }
-
-        // Возвращаем данные профиля
-        var userProfileDto = new UserProfileDto
-        {
-            Id = user.Id,
-            Name = user.Username,
-            LastName = user.UserLastName,
-            FirstName = user.UserFirstName
-            // Добавьте другие поля, если нужно
-        };
-
-        return Ok(userProfileDto);
     }
 
 
@@ -85,7 +91,8 @@ public class ProfileController : ControllerBase
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            _logger.LogError(e, "Не удалось получить историю изменения баланса");
+            return BadRequest("Не удалось получить историю изменения баланса");
             throw;
         }
     }
@@ -102,22 +109,21 @@ public class ProfileController : ControllerBase
             }
 
             var noneActivatedDiscount = await _context.UserDiscounts.Where(ud => ud.AccountId == int.Parse(userId))
-                .Join(_context.Discounts, ud => ud.DiscountId, d => d.Id, (ud, d) => new
+                .Join(_context.Discounts.Where(d => d.isArchived == false), ud => ud.DiscountId, d => d.Id, (ud, d) => new
                 {
                     Id = ud.Id,
                     Name = d.Name,
                     Description = d.Description,
-                    DiscountSize = d.DiscountSize,
-                    isActivated = false
-                }).ToListAsync();
+                    DiscountSize = d.DiscountSize, 
+                })
+                .ToListAsync();
             var activatedDiscount = await _context.UserDiscountsActivated.Where(ud => ud.AccountId == int.Parse(userId))
                 .Join(_context.Discounts, ud => ud.DiscountId, d => d.Id, (ud, d) => new
                 {
                     Id = ud.Id,
                     Name = d.Name,
                     Description = d.Description,
-                    DiscountSize = d.DiscountSize,
-                    isActivated = true
+                    DiscountSize = d.DiscountSize
                 }).ToListAsync();
             if (!noneActivatedDiscount.Any() && !activatedDiscount.Any())
             {
@@ -136,7 +142,7 @@ public class ProfileController : ControllerBase
                     Name = nad.Name,
                     Description = nad.Description ?? "",
                     DiscountSize = nad.DiscountSize,
-                    isActivated = nad.isActivated
+                    isActivated = false
                 });
             }
 
@@ -148,7 +154,7 @@ public class ProfileController : ControllerBase
                     Name = ad.Name,
                     Description = ad.Description ?? "",
                     DiscountSize = ad.DiscountSize,
-                    isActivated = ad.isActivated
+                    isActivated = true
                 });
             }
 
@@ -156,7 +162,8 @@ public class ProfileController : ControllerBase
         }
         catch (Exception e)
         {
-            return StatusCode(500, "Произошла ошибка при обработке вашего запроса." + e.Message);
+            _logger.LogError(e, "Не удалось получить скидки пользователя");
+            return BadRequest("Не удалось получить скидки пользователя");
         }
     }
 

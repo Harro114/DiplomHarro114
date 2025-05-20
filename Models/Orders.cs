@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-namespace Diplom.Models;
+namespace Gamification.Models;
 
 public class Orders
 {

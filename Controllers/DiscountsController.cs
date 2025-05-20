@@ -1,12 +1,12 @@
 ﻿using System.Security.Claims;
-using Diplom.Data;
-using Diplom.Models;
-using Diplom.Models.DTO;
+using Gamification.Data;
+using Gamification.Models;
+using Gamification.Models.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Diplom.Controllers;
+namespace Gamification.Controllers;
 
 [Authorize]
 [ApiController]
@@ -26,7 +26,7 @@ public class DiscountsController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while initializing ExpController.");
+            _logger.LogError(ex, "Не удалось инициализировать DiscountsController");
             throw;
         }
     }
@@ -44,22 +44,32 @@ public class DiscountsController : ControllerBase
                 return BadRequest("Токен недействителен или не содержит необходимую информацию.");
             }
 
-            var discount = await _context.Discounts.FirstOrDefaultAsync(d => d.Id == buyPrimaryDiscountDto.DiscountId);
+            var discount = await _context.Discounts.FirstOrDefaultAsync(d => d.Id == buyPrimaryDiscountDto.DiscountId && d.isArchived == false);
             var userExp =
                 await _context.ExpUsersWallets.FirstOrDefaultAsync(a => a.AccountId == int.Parse(userId));
             if (discount == null || userExp == null)
             {
-                return BadRequest("Not found AccountWallet or Discounts");
+                return BadRequest("Не найден кошелек или скидка");
             }
 
             if (discount.isActive == false)
             {
-                return BadRequest("Discount is not active");
+                return BadRequest("Скидка не активна");
             }
 
             if (discount.isPrimary == false)
             {
-                return BadRequest("Discount is not primary");
+                return BadRequest("Скидка не является первичной");
+            }
+
+            if (discount.EndDate < DateTime.UtcNow && discount.EndDate != null)
+            {
+                return BadRequest("Срок действия скидки уже закончился");
+            }
+
+            if (discount.StartDate > DateTime.UtcNow)
+            {
+                return BadRequest("Скидка еще не началась");
             }
 
             if (discount.Amount <= userExp.ExpValue)
@@ -86,12 +96,12 @@ public class DiscountsController : ControllerBase
                     new { newDiscountUser });
             }
 
-            return BadRequest("Error buying primary discount");
+            return BadRequest("Не удалось купить скидку");
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred while buying primary discount");
-            return BadRequest("Error buying primary discount");
+            _logger.LogError(e, "Не удалось купить скидку");
+            return BadRequest("Не удалось купить скидку");
         }
     }
 
@@ -112,7 +122,7 @@ public class DiscountsController : ControllerBase
                 await _context.ExpUsersWallets.FirstOrDefaultAsync(a => a.AccountId == int.Parse(userId));
             if (userExp == null)
             {
-                return BadRequest("Not found AccountWallet");
+                return BadRequest("Не найден кошелек");
             }
 
             var discountExchange = await _context.ExchangeDiscounts.FirstOrDefaultAsync(ed =>
@@ -123,14 +133,33 @@ public class DiscountsController : ControllerBase
             if (discountExchange != null)
             {
                 var discount = await _context.Discounts.FirstOrDefaultAsync(d => d.Id == discountExchange.DiscountId);
-                var oneDiscount = await _context.UserDiscounts.FirstOrDefaultAsync(d =>
+                var oneDiscount = await _context.UserDiscounts
+                    .FirstOrDefaultAsync(d =>
                     d.DiscountId == combiningDiscountsDto.DiscountOneId && d.AccountId == int.Parse(userId));
                 var twoDiscount = await _context.UserDiscounts.FirstOrDefaultAsync(d =>
                     d.DiscountId == combiningDiscountsDto.DiscountTwoId && d.AccountId == int.Parse(userId));
                 if (oneDiscount == null || twoDiscount == null)
                 {
-                    return BadRequest("Not found Discount");
+                    return BadRequest("Не найдена скидка для объединения");
                 }
+
+                var oneDisc = await _context.Discounts.FirstOrDefaultAsync(z => z.Id == oneDiscount.DiscountId);
+                var twoDisc = await _context.Discounts.FirstOrDefaultAsync(z => z.Id == twoDiscount.DiscountId);
+                if (discount.isActive = false || discount.isArchived == true || oneDisc.isArchived == true || twoDisc.isArchived == true)
+                {
+                    return BadRequest("Скидка для объединения не активна");
+                }
+
+                if (discount.EndDate < DateTime.UtcNow && discount.EndDate != null)
+                {
+                    return BadRequest("Срок действия скидки закончился");
+                }
+
+                if (discount.StartDate > DateTime.UtcNow)
+                {
+                    return BadRequest("Скидка еще не активна");
+                }
+                
 
                 if (discount.Amount <= userExp.ExpValue)
                 {
@@ -174,16 +203,16 @@ public class DiscountsController : ControllerBase
                 }
                 else
                 {
-                    return BadRequest("Insufficient balance");
+                    return BadRequest("Не достаточный баланс");
                 }
             }
 
-            return BadRequest("An error occurred while combining discounts");
+            return BadRequest("Не удалось объединить скидки");
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred while combining discounts");
-            return BadRequest("An error occurred while combining discounts");
+            _logger.LogError(e, "Не удалось объединить скидки");
+            return BadRequest("Не удалось объединить скидки");
         }
     }
 
@@ -222,12 +251,12 @@ public class DiscountsController : ControllerBase
                 return Ok(usrDiscountActivated);
             }
 
-            return BadRequest("An error occurred while activated discount");
+            return BadRequest("Не удалось активировать скидку");
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred while activated discount");
-            return BadRequest("An error occurred while activated discount");
+            _logger.LogError(e, "Не удалось активировать скидку");
+            return BadRequest("Не удалось активировать скидку");
         }
     }
 
@@ -254,6 +283,12 @@ public class DiscountsController : ControllerBase
             }
 
             var actualeDiscount = await _context.Discounts.FirstOrDefaultAsync(d => d.Id == discount.DiscountId);
+            var oneDisc = await _context.Discounts.FirstOrDefaultAsync(z => z.Id == discount.DiscountExchangeOneId);
+            var twoDisc = await _context.Discounts.FirstOrDefaultAsync(z => z.Id == discount.DiscountExchangeTwoId);
+            if (actualeDiscount.isArchived == true || oneDisc.isArchived == true || twoDisc.isArchived == true)
+            {
+                return BadRequest("Скидка удалена");
+            }
             return Ok(new checkExchangeDTO
             {
                 hasDiscount = true,
@@ -262,8 +297,8 @@ public class DiscountsController : ControllerBase
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            return BadRequest("Что-то пошло не так");
+            _logger.LogError(e, "Не удалось вернуть наличие объединения");
+            return BadRequest("Не удалось вернуть наличие объединения");
             throw;
         }
     }
@@ -278,9 +313,10 @@ public class DiscountsController : ControllerBase
             {
                 return Unauthorized("Токен недействителен или не содержит необходимую информацию.");
             }
-
+            
             var discounts = await _context.Discounts
-                .Where(d => d.isPrimary == true && (d.EndDate < DateTime.UtcNow || d.EndDate == null)).Select(d =>
+                .Where(d => d.isPrimary == true && (d.EndDate > DateTime.UtcNow || d.EndDate == null) && d.isArchived == false)
+                .Select(d =>
                     new Discounts
                     {
                         Id = d.Id,
@@ -294,14 +330,15 @@ public class DiscountsController : ControllerBase
                         CategoriesId = d.CategoriesId,
                         Amount = d.Amount,
                         isPrimary = d.isPrimary
-                    }).ToListAsync();
+                    })
+                .ToListAsync();
             var getDto = discounts;
             return Ok(getDto);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "An error occurred while getting primary discount");
-            return BadRequest("Что-то пошло не так");
+            _logger.LogError(e, "Не удалось получить список первичных скидок");
+            return BadRequest("Не удалось получить список первичных скидок");
             throw;
         }
     }
@@ -317,9 +354,11 @@ public class DiscountsController : ControllerBase
                 return Unauthorized("Токен недействителен или не содержит необходимую информацию.");
             }
 
-            var discountsNoneActivated = await _context.UserDiscounts.Where(ud => ud.AccountId == int.Parse(userId))
-                .Join(_context.Discounts, ud => ud.DiscountId, d => d.Id, (ud, d) => new { ud, d }).Where(x =>
-                    x.ud.AccountId == int.Parse(userId) && (x.d.EndDate < DateTime.UtcNow || x.d.EndDate == null))
+            var discountsNoneActivated = await _context.UserDiscounts
+                .Where(ud => ud.AccountId == int.Parse(userId))
+                .Join(_context.Discounts.Where(d => d.isArchived == false), ud => ud.DiscountId, d => d.Id, (ud, d) => new { ud, d })
+                .Where(x =>
+                    x.ud.AccountId == int.Parse(userId))
                 .Select(x => new DiscountDTO
                 {
                     Id = x.ud.Id,
@@ -336,25 +375,7 @@ public class DiscountsController : ControllerBase
                     isPrimary = x.d.isPrimary
                 })
                 .ToListAsync();
-            var discountsActivated = await _context.UserDiscountsActivated.Where(ud => ud.AccountId == int.Parse(userId))
-                .Join(_context.Discounts, ud => ud.DiscountId, d => d.Id, (ud, d) => new { ud, d }).Where(x =>
-                    x.ud.AccountId == int.Parse(userId) && (x.d.EndDate < DateTime.UtcNow || x.d.EndDate == null))
-                .Select(x => new DiscountDTO
-                {
-                    Id = x.ud.Id,
-                    DiscountId = x.d.Id,
-                    Name = x.d.Name,
-                    Description = x.d.Description,
-                    isActive = x.d.isActive,
-                    DiscountSize = x.d.DiscountSize,
-                    StartDate = x.d.StartDate,
-                    EndDate = x.d.EndDate,
-                    ProductsId = x.d.ProductsId,
-                    CategoriesId = x.d.CategoriesId,
-                    Amount = x.d.Amount,
-                    isPrimary = x.d.isPrimary
-                })
-                .ToListAsync();
+            
             var getDto = new GetAllDiscountsUserDTO()
             {
                 Discount = new List<DiscountDTO>()
@@ -362,18 +383,18 @@ public class DiscountsController : ControllerBase
             
             foreach (var dis in discountsNoneActivated)
             {
-                getDto.Discount.Add(dis);
+                if ((dis.EndDate >= DateTime.UtcNow && dis.EndDate != null || dis.EndDate == null) && (dis.StartDate <= DateTime.UtcNow)) {
+                    getDto.Discount.Add(dis);
+                }
             }
 
-            foreach (var dis in discountsActivated)
-            {
-                getDto.Discount.Add(dis);
-            }
+           
             return Ok(getDto);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            _logger.LogError(e, "Не удалось получить список скидок пользователей");
+            return BadRequest("Не удалось получить список скидок пользователей");
             throw;
         }
     }

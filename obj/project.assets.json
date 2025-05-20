@@ -3833,9 +3833,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\maksi.VL\\RiderProjects\\ Diplom\\Diplom.csproj",
-      "projectName": "Diplom",
-      "projectPath": "C:\\Users\\maksi.VL\\RiderProjects\\ Diplom\\Diplom.csproj",
+      "projectUniqueName": "C:\\Users\\maksi.VL\\RiderProjects\\ Diplom\\Gamification.csproj",
+      "projectName": "Gamification",
+      "projectPath": "C:\\Users\\maksi.VL\\RiderProjects\\ Diplom\\Gamification.csproj",
       "packagesPath": "C:\\Users\\maksi.VL\\.nuget\\packages\\",
       "outputPath": "C:\\Users\\maksi.VL\\RiderProjects\\ Diplom\\obj\\",
       "projectStyle": "PackageReference",

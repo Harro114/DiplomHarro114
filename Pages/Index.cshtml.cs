@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Diplom.Pages;
+namespace Gamification.Pages;
 
 public class IndexModel : PageModel
 {
