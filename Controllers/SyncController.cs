@@ -31,19 +31,25 @@ public class SyncController : ControllerBase
     {
         try
         {
-            var activatingDiscounts = _context.UserDiscountsActivated.ToList();
+            var activatingDiscounts = _context.UserDiscountsActivated
+                .Join(_context.Discounts, uda => uda.DiscountId, d => d.Id, (uda, d) => new { uda, d })
+                .ToList();
             foreach (var discount in activatingDiscounts)
             {
                 await _context.UserDiscountsActivatedHistory.AddAsync(new UserDiscountsActivatedHistory
                 {
-                    Id = discount.Id,
-                    AccountId = discount.AccountId,
-                    DiscountId = discount.DiscountId,
-                    DateActivateDiscount = discount.DateActivateDiscount
+                    Id = discount.uda.Id,
+                    AccountId = discount.uda.AccountId,
+                    DiscountId = discount.uda.DiscountId,
+                    DateActivateDiscount = discount.uda.DateActivateDiscount,
+                    ProductsId = discount.d.ProductsId,
+                    CategoriesId = discount.d.CategoriesId,
+                    DiscountName = discount.d.Name
+                    
                 });
             }
 
-            _context.UserDiscountsActivated.RemoveRange(activatingDiscounts);
+            _context.UserDiscountsActivated.RemoveRange(activatingDiscounts.Select(x => x.uda).ToList());
             await _context.SaveChangesAsync();
             return Ok(activatingDiscounts);
         }

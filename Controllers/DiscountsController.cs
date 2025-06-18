@@ -282,9 +282,16 @@ public class DiscountsController : ControllerBase
                 });
             }
 
-            var actualeDiscount = await _context.Discounts.FirstOrDefaultAsync(d => d.Id == discount.DiscountId);
-            var oneDisc = await _context.Discounts.FirstOrDefaultAsync(z => z.Id == discount.DiscountExchangeOneId);
-            var twoDisc = await _context.Discounts.FirstOrDefaultAsync(z => z.Id == discount.DiscountExchangeTwoId);
+            var actualeDiscount = await _context.Discounts.Where(d => d.isActive == true).FirstOrDefaultAsync(d => d.Id == discount.DiscountId);
+            var oneDisc = await _context.Discounts.Where(d => d.isActive == true).FirstOrDefaultAsync(z => z.Id == discount.DiscountExchangeOneId);
+            var twoDisc = await _context.Discounts.Where(d => d.isActive == true).FirstOrDefaultAsync(z => z.Id == discount.DiscountExchangeTwoId);
+            if (actualeDiscount == null || oneDisc == null || twoDisc == null)
+            {
+                return Ok(new checkExchangeDTO
+                {
+                    hasDiscount = false
+                });
+            }
             if (actualeDiscount.isArchived == true || oneDisc.isArchived == true || twoDisc.isArchived == true)
             {
                 return BadRequest("Скидка удалена");
@@ -315,22 +322,10 @@ public class DiscountsController : ControllerBase
             }
             
             var discounts = await _context.Discounts
-                .Where(d => d.isPrimary == true && (d.EndDate > DateTime.UtcNow || d.EndDate == null) && d.isArchived == false)
-                .Select(d =>
-                    new Discounts
-                    {
-                        Id = d.Id,
-                        Name = d.Name,
-                        Description = d.Description,
-                        isActive = d.isActive,
-                        DiscountSize = d.DiscountSize,
-                        StartDate = d.StartDate,
-                        EndDate = d.EndDate,
-                        ProductsId = d.ProductsId,
-                        CategoriesId = d.CategoriesId,
-                        Amount = d.Amount,
-                        isPrimary = d.isPrimary
-                    })
+                .Where(d => d.isPrimary == true 
+                            && (d.EndDate > DateTime.UtcNow || d.EndDate == null) 
+                            && d.isArchived == false 
+                            && d.isActive == true)
                 .ToListAsync();
             var getDto = discounts;
             return Ok(getDto);
@@ -356,13 +351,13 @@ public class DiscountsController : ControllerBase
 
             var discountsNoneActivated = await _context.UserDiscounts
                 .Where(ud => ud.AccountId == int.Parse(userId))
-                .Join(_context.Discounts.Where(d => d.isArchived == false), ud => ud.DiscountId, d => d.Id, (ud, d) => new { ud, d })
-                .Where(x =>
-                    x.ud.AccountId == int.Parse(userId))
+                .Join(_context.Discounts.Where(d => d.isArchived == false 
+                                                    && d.isActive == true), 
+                    ud => ud.DiscountId, d => d.Id, (ud, d) => new { ud, d })
                 .Select(x => new DiscountDTO
                 {
                     Id = x.ud.Id,
-                    DiscountId = x.d.Id,
+                    DiscountId = x.ud.DiscountId,
                     Name = x.d.Name,
                     Description = x.d.Description,
                     isActive = x.d.isActive,

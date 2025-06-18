@@ -1152,4 +1152,64 @@ public class AdminController : ControllerBase
             throw;
         }
     }
+
+    [HttpGet("getExpToRubles")]
+    [Authorize]
+    public async Task<ActionResult<float>> GetExpToRubles()
+    {
+        try
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("Токен недействителен или не содержит необходимую информацию.");
+            }
+
+            var roleUser = await _context.AccountRole.FirstOrDefaultAsync(r => r.AccountId == int.Parse(userId));
+            if (roleUser.RoleId != 2 || roleUser.RoleId == null)
+            {
+                return Unauthorized("Пользователь не является администратором!");
+            }
+
+            var expToRubles = await _context.Config.FirstOrDefaultAsync(z => z.Name == "rublesToExp");
+            return Ok(expToRubles.ValueFloat);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Не удалось вернуть курс");
+            BadRequest("Не удалось вернуть курс");
+            throw;
+        }
+    }
+
+    [HttpPost("ChangeExpToRubles")]
+    [Authorize]
+    public async Task<ActionResult<float>> ChangeExpToRubles(
+        [FromBody] float expToRubles)
+    {
+        try
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized("Токен недействителен или не содержит необходимую информацию.");
+            }
+
+            var roleUser = await _context.AccountRole.FirstOrDefaultAsync(r => r.AccountId == int.Parse(userId));
+            if (roleUser.RoleId != 2 || roleUser.RoleId == null)
+            {
+                return Unauthorized("Пользователь не является администратором!");
+            }
+            var config = await _context.Config.FirstOrDefaultAsync(z => z.Name == "rublesToExp");
+            config.ValueFloat = expToRubles;
+            await _context.SaveChangesAsync();
+            return Ok(expToRubles);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Не удалось изменить курс валюты");
+            return BadRequest("Не удалось изменить курс валюты");
+            throw;
+        }
+    }
 }

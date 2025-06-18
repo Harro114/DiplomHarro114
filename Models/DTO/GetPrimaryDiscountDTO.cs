@@ -2,5 +2,5 @@
 
 public class GetPrimaryDiscountDTO
 {
-    public List<UserDiscounts> userDiscounts { get; set; }
+    public List<Discounts> Discounts { get; set; }
 }

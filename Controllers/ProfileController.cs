@@ -60,6 +60,7 @@ public class ProfileController : ControllerBase
 
 
     [HttpGet("expHistory")]
+    [Authorize]
     public async Task<ActionResult<ExpHistoryUserDTO>> GetExphistoryUser()
     {
         try
@@ -109,7 +110,7 @@ public class ProfileController : ControllerBase
             }
 
             var noneActivatedDiscount = await _context.UserDiscounts.Where(ud => ud.AccountId == int.Parse(userId))
-                .Join(_context.Discounts.Where(d => d.isArchived == false), ud => ud.DiscountId, d => d.Id, (ud, d) => new
+                .Join(_context.Discounts.Where(d => d.isArchived == false && d.isActive == true), ud => ud.DiscountId, d => d.Id, (ud, d) => new
                 {
                     Id = ud.Id,
                     Name = d.Name,
@@ -118,7 +119,7 @@ public class ProfileController : ControllerBase
                 })
                 .ToListAsync();
             var activatedDiscount = await _context.UserDiscountsActivated.Where(ud => ud.AccountId == int.Parse(userId))
-                .Join(_context.Discounts, ud => ud.DiscountId, d => d.Id, (ud, d) => new
+                .Join(_context.Discounts.Where(d => d.isArchived == false && d.isActive == true), ud => ud.DiscountId, d => d.Id, (ud, d) => new
                 {
                     Id = ud.Id,
                     Name = d.Name,
